@@ -11279,3 +11279,30 @@ footer.sticky-footer .copyright {
 body.sidebar-toggled footer.sticky-footer {
   width: 100%;
 }
+
+.styled-line {
+  border: 0;
+  height: 1px;
+  background: #ddd;
+  margin: 20px 0;
+}
+
+/* Team member styles */
+.team-member-cyrus,
+.team-member-miks,
+.team-member-queen,
+.team-member-ailene,
+.team-member-prince {
+  font-weight: medium;
+  font-size: 1.2em;
+}
+
+.dev-cyrus,
+.dev-miks,
+.dev-queen,
+.dev-ailene,
+.dev-prince {
+  display: block;
+  font-size: 0.9em;
+  color: #555;
+}
