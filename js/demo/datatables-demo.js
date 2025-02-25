@@ -6,7 +6,7 @@ $(document).ready(function() {
       let rows = "";
       data.forEach(function(farmer) {
         // Adjust the key here if needed:
-        rows += `<tr>
+        rows += `<tr onclick="setSelectedFarmer(this)" data-id="1">
           <td>${farmer.Name || ''}</td>
           <td>${farmer.Location || ''}</td>
           <td>${farmer['Phone Number'] || ''}</td>
