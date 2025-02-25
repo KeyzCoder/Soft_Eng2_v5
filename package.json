@@ -32,22 +32,27 @@
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "5.15.3",
-        "bootstrap": "4.6.0",
+        "bootstrap": "^5.3.3",
         "chart.js": "2.9.4",
-        "datatables.net-bs4": "1.10.24",
+        "cors": "^2.8.5",
+        "datatables.net-bs4": "^1.13.11",
+        "express": "^4.21.2",
         "jquery": "3.6.0",
-        "jquery.easing": "^1.4.1"
+        "jquery.easing": "^1.4.1",
+        "sass": "^1.85.0",
+        "sqlite3": "^5.1.7",
+        "startbootstrap-sb-admin-2": "file:"
     },
     "devDependencies": {
-        "browser-sync": "2.26.14",
+        "browser-sync": "^3.0.3",
         "del": "6.0.0",
-        "gulp": "4.0.2",
-        "gulp-autoprefixer": "7.0.1",
+        "gulp": "^5.0.0",
+        "gulp-autoprefixer": "^9.0.0",
         "gulp-clean-css": "4.3.0",
-        "gulp-header": "2.0.9",
+        "gulp-header": "^1.8.9",
         "gulp-plumber": "^1.2.1",
         "gulp-rename": "2.0.0",
-        "gulp-sass": "4.1.0",
+        "gulp-sass": "^6.0.0",
         "gulp-uglify": "3.0.2",
         "merge-stream": "2.0.0"
     }
