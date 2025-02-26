@@ -11306,3 +11306,30 @@ body.sidebar-toggled footer.sticky-footer {
   font-size: 0.9em;
   color: #555;
 }
+
+/* Row hover effect */
+#dataTable tbody tr:hover {
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+/* Style for selected row */
+#dataTable tbody tr.selected {
+  background-color: #cce5ff;
+}
+
+/* Style for deactivated row (blue highlight) */
+.deactivated {
+  background-color: red !important;
+  color: white !important;
+}
+
+#dataTable tbody tr.deactivated {
+  background-color: red !important;
+  color: white !important;
+}
+
+
+
+
+
