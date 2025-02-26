@@ -22,7 +22,7 @@ const yieldDb = new sqlite3.Database(yieldDbPath, sqlite3.OPEN_READWRITE, (err) 
 });
 
 // Farmers Database
-const farmersDbPath = path.join(__dirname, '..', 'database', 'farmers_data.db');
+const farmersDbPath = path.join(__dirname, '..', 'database', 'farmers.db');
 const farmersDb = new sqlite3.Database(farmersDbPath, sqlite3.OPEN_READWRITE, (err) => {
   if (err) {
     console.error("Error connecting to farmers.db:", err.message);
@@ -36,7 +36,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Serve the main HTML page
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../dashboard.html'));
+    res.sendFile(path.join(__dirname, '../index.html'));
 });
 
 // Historical Yield API Endpoint (Read)
@@ -52,8 +52,11 @@ app.get('/api/data', (req, res) => {
 });
 
 // Farmers API Endpoint (Read)
+// Use correct column names as defined in the table schema.
+// Farmers API Endpoint (Read)
+// Farmers API Endpoint (Read)
 app.get('/api/farmers', (req, res) => {
-    const query = 'SELECT rowid as id, "Name", "Location", "Crop Type", "Phone Number", "Farm Size" FROM farmers';
+    const query = "SELECT rowid as id, Name, Location, Crop_Type, Phone_Number, Farm_Size, Average_Yield, deactivated FROM farmers";
     farmersDb.all(query, [], (err, rows) => {
         if (err) {
             res.status(500).json({ error: err.message });
@@ -71,26 +74,25 @@ app.get('/api/farmers', (req, res) => {
  *   "location": "Some Location",
  *   "crop": "Wheat",
  *   "phone_number": "123456789",
- *   "farm_size": "10.5"
+ *   "farm_size": "10.5",
+ *   "average_yield": "2.5"
  * }
  */
 app.post('/api/farmers', (req, res) => {
-    const { name, location, crop, phone_number, farm_size } = req.body;
+    const { name, location, crop, phone_number, farm_size, average_yield } = req.body;
 
-    // Validate the input as necessary
-    if (!name || !location || !crop || !phone_number || farm_size === undefined) {
+    if (!name || !location || !crop || !phone_number || farm_size === undefined || average_yield === undefined) {
         return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // Insert into the farmers table using the column names as defined in your schema.
-    const query = `INSERT INTO farmers ("Name", "Location", "Crop Type", "Phone Number", "Farm Size")
-                   VALUES (?, ?, ?, ?, ?)`;
-    farmersDb.run(query, [name, location, crop, phone_number, farm_size], function(err) {
+    const query = `INSERT INTO farmers (Name, Location, Crop_Type, Phone_Number, Farm_Size, Average_Yield)
+               VALUES (?, ?, ?, ?, ?, ?)`;
+
+    farmersDb.run(query, [name, location, crop, phone_number, farm_size, average_yield], function(err) {
         if (err) {
             console.error('Error running query:', err.message);
             return res.status(500).json({ error: err.message });
         }
-        // this.lastID contains the id of the newly inserted row.
         res.json({ id: this.lastID, message: "Farmer added successfully" });
     });
 });
@@ -98,15 +100,17 @@ app.post('/api/farmers', (req, res) => {
 /**
  * Update an existing farmer's record.
  * Expected URL parameter: farmer id
- * Expected JSON body: fields to update (e.g., name, location, crop, phone_number, farm_size)
+ * Expected JSON body: fields to update (e.g., name, location, crop, phone_number, farm_size, average_yield)
  */
 app.put('/api/farmers/:id', (req, res) => {
     const { id } = req.params;
-    const { name, location, crop, phone_number, farm_size } = req.body;
+    const {
+        name, location, crop, phone_number, farm_size, average_yield, deactivated
+    } = req.body;
 
-    // Build the SQL UPDATE query dynamically based on provided fields
     const fields = [];
     const values = [];
+
     if (name) {
         fields.push(`"Name" = ?`);
         values.push(name);
@@ -116,26 +120,35 @@ app.put('/api/farmers/:id', (req, res) => {
         values.push(location);
     }
     if (crop) {
-        fields.push(`"Crop Type" = ?`);
+        fields.push(`"Crop_Type" = ?`);
         values.push(crop);
     }
     if (phone_number) {
-        fields.push(`"Phone Number" = ?`);
+        fields.push(`"Phone_Number" = ?`);
         values.push(phone_number);
     }
     if (farm_size !== undefined) {
-        fields.push(`"Farm Size" = ?`);
+        fields.push(`"Farm_Size" = ?`);
         values.push(farm_size);
     }
-    
+    if (average_yield !== undefined) {
+        fields.push(`"Average_Yield" = ?`);
+        values.push(average_yield);
+    }
+    // Handle deactivated field explicitly
+    if (typeof deactivated !== "undefined") {
+        fields.push(`"deactivated" = ?`);
+        values.push(deactivated ? 1 : 0); // Store as 1 for true, 0 for false
+    }
+
     if (fields.length === 0) {
         return res.status(400).json({ error: "No fields to update" });
     }
-    
-    values.push(id);  // Append the id for the WHERE clause
+
+    values.push(id); // Append the ID for the WHERE clause
 
     const query = `UPDATE farmers SET ${fields.join(', ')} WHERE rowid = ?`;
-    farmersDb.run(query, values, function(err) {
+    farmersDb.run(query, values, function (err) {
         if (err) {
             console.error('Error running update query:', err.message);
             return res.status(500).json({ error: err.message });
@@ -143,7 +156,7 @@ app.put('/api/farmers/:id', (req, res) => {
         if (this.changes === 0) {
             return res.status(404).json({ error: "Farmer not found" });
         }
-        res.json({ message: "Farmer updated successfully" });
+        res.json({ message: "Farmer updated successfully", deactivated: !!deactivated });
     });
 });
 
